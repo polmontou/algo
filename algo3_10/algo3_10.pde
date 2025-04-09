@@ -1,5 +1,5 @@
 void setup() {
-  primeFromOneToX(73);
+  primeFromOneToX(100);
 }
 
 void primeFromOneToX(int x) {

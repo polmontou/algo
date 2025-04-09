@@ -1,5 +1,5 @@
 void setup() {
-  isPrime(6);
+  isPrime(100);
 }
 
 void isPrime(int x) {
