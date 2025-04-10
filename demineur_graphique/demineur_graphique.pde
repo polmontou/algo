@@ -2,14 +2,13 @@ void setup() {
   size(300, 300);
   tailleTableau = 9;
   initBoard(tailleTableau);
-  mineNumber = 80;
+  mineNumber = 20;
   modifyValue(tailleTableau, mineNumber, board);
   printBoard(board, tailleTableau);
   dessinTableau(tailleTableau);
 }
 
 void draw() {
-
 }
 
 
@@ -18,11 +17,11 @@ int[][] board;
 int mineNumber;
 
 //crée un tableau rempli de 0
-void initBoard(int n) {
+void initBoard(int tailleTableau) {
   board = new int[tailleTableau][tailleTableau];
-  for (int j = 0; j < n; j++) {
-    for (int i = 0; i < n; i++) {
-      board[j][i]=0;
+  for (int x = 0; x < tailleTableau; x++) {
+    for (int y = 0; y < tailleTableau; y++) {
+      board[x][y]=0;
     }
   }
 }
@@ -43,6 +42,7 @@ void modifyValue(int tailleTableau, int mineNumber, int[][] board) {
     }
   } else {
     println("Trop de mines!");
+    exit();
   }
 }
 
@@ -158,16 +158,16 @@ void dessinTableau(int n) {
         }
       }
     } else {
-        for (int i = 0; i < n; i++) {
-          if ((i+2)%2 != 0) {
-            fill(colorEven);
-            rect(20+j*20, 20+i*20, 20, 20);
-          } else {
-            fill(colorOdd);
-            rect(20+j*20, 20+i*20, 20, 20);
-          }
+      for (int i = 0; i < n; i++) {
+        if ((i+2)%2 != 0) {
+          fill(colorEven);
+          rect(20+j*20, 20+i*20, 20, 20);
+        } else {
+          fill(colorOdd);
+          rect(20+j*20, 20+i*20, 20, 20);
         }
       }
+    }
   }
 }
 
@@ -175,30 +175,25 @@ void mouseClicked() {
   if ((20 > mouseY || mouseY > 20+20*tailleTableau || 20 > mouseX || mouseX > 20+20*tailleTableau)) {
     textSize(18);
     fill(0);
-    text("Faut apprendre à viser!", 20, 20*(tailleTableau+2)); 
+    text("Faut apprendre à viser!", 20, 20*(tailleTableau+2));
   } else {
-    boolean loss = false;
     int posMouseY = mouseX;
     int posMouseX = mouseY;
-    if (isAMine(((posMouseX-20)/20),((posMouseY-20)/20))) {
+    if (isAMine(((posMouseX-20)/20), ((posMouseY-20)/20))) {
       fill(colorLoss);
-      rect(float(((posMouseY-20)/20)*20)+20,float(((posMouseX-20)/20)*20)+20, 20, 20);
+      rect(float(((posMouseY-20)/20)*20)+20, float(((posMouseX-20)/20)*20)+20, 20, 20);
       textSize(18);
       fill(0);
       text("X", ((posMouseY/20)*20)+6, ((posMouseX/20)*20)+16);
       text("BOOM", 20, 20*(tailleTableau+2));
-      loss = true;
+
       exit();
     } else {
       fill(colorSafeClick);
-      rect(float(((posMouseY-20)/20)*20)+20,float(((posMouseX-20)/20)*20)+20, 20, 20);
+      rect(float(((posMouseY-20)/20)*20)+20, float(((posMouseX-20)/20)*20)+20, 20, 20);
       textSize(18);
       fill(0);
-      text(getMines(((posMouseX-20)/20),((posMouseY-20)/20)), ((posMouseY/20)*20)+6, ((posMouseX/20)*20)+16);
-      
-    }
-    if (loss) {
-      exit();
+      text(getMines(((posMouseX-20)/20), ((posMouseY-20)/20)), ((posMouseY/20)*20)+6, ((posMouseX/20)*20)+16);
     }
   }
 }
