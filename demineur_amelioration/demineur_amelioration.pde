@@ -1,17 +1,25 @@
 void setup() {
   size(400, 400);
-  arraySize = 10;
-  int wishedMines = 5;
+  arraySize = 5;
+  wishedMines = 1;
   initBoard(arraySize);
   putMines(board, wishedMines, arraySize);
   printBoard(board, arraySize);
   dessinTableau(arraySize);
+  println(arraySize*arraySize-wishedMines);
 }
 
 void draw() {
+    if (safeCase == ((arraySize*arraySize)-wishedMines)) {
+      textSize(50);
+      fill(0);
+      text("VICTOIRE", 100, 25*(arraySize+5));
+    }
 }
-
+int safeCase=0;
+int wishedMines;
 int[][] board;
+int[][] boardbis;
 int arraySize;
 
 //créer mon talbeau selon la taille voulue
@@ -32,7 +40,7 @@ void printBoard(int[][] board, int arraySize) {
 //pose des mines dans mon tableau en modifiant la valeur de 0 (neutre) à 99(mine)
 void putMines (int[][] board, int wishedMines, int arraySize) {
   int minesPut = 0;
-  if (wishedMines <= (arraySize^2)) {
+  if (wishedMines <= (arraySize*arraySize)) {
     while (minesPut != wishedMines) {
       int posMineX = int(random(0, arraySize));
       int posMineY = int(random(0, arraySize));
@@ -103,15 +111,20 @@ int getMines(int testX, int testY) {
 
 void getNoMine(int coordX, int coordY) {
   //teste si les positions des cases autour existe
-  if (getMines(coordX, coordY) == 0) {
+  if (getMines(coordX, coordY) == 0 ) {
     for (int y = coordY-1; y < coordY +2; y++) {
       for (int x = coordX-1; x < coordX +2; x++) {
-        if ( 0 <= y && y < arraySize && 0 <= x && x < arraySize) {
+        if ( 0 <= y && y < arraySize && 0 <= x && x < arraySize && !(y == coordY && x == coordX)) {
           fill(colorSafeClick);
           rect((x+1)*25, (y+1)*25, 25, 25);
           textSize(22);
           fill(0);
-          text(getMines(x, y), ((x+1)*25)+8,((y+2)*25)-6);
+          text(getMines(x, y), ((x+1)*25)+8, ((y+2)*25)-6);
+          if (board[x][y] == 0) {
+            safeCase++;
+          }  
+          board[x][y] ++;
+          println(safeCase);
         }
       }
     }
@@ -125,26 +138,9 @@ color colorLoss = color(255, 0, 0);
 
 void dessinTableau(int n) {
   for (int j = 0; j < n; j++) {
-    if ((j+2)%2 != 0) {
-      for (int i = 0; i < n; i++) {
-        if ((i+2)%2 != 0) {
-          fill(colorOdd);
-          rect(25+j*25, 25+i*25, 25, 25);
-        } else {
-          fill(colorEven);
-          rect(25+j*25, 25+i*25, 25, 25);
-        }
-      }
-    } else {
-      for (int i = 0; i < n; i++) {
-        if ((i+2)%2 != 0) {
-          fill(colorEven);
-          rect(25+j*25, 25+i*25, 25, 25);
-        } else {
-          fill(colorOdd);
-          rect(25+j*25, 25+i*25, 25, 25);
-        }
-      }
+    for (int i = 0; i < n; i++) {
+      fill(colorEven);
+      rect(25+j*25, 25+i*25, 25, 25);
     }
   }
 }
@@ -152,37 +148,68 @@ void dessinTableau(int n) {
 void mouseClicked() {
   int mousePosX = mouseX;
   int mousePosY = mouseY;
-  println("coord x : "+(mousePosX-25)/25);
-  println("coord y : "+(mousePosY-25)/25);
   if ((mouseButton == LEFT)) {
     leftClick(mousePosX, mousePosY);
   } else if (mouseButton == RIGHT) {
-    println("coucou");
+    rightClick(mousePosX, mousePosY);
   }
 }
-void leftClick(int mousePosX, int mousePosY) {
+
+//gestion clic droit (verrou case)
+void rightClick(int mousePosX, int mousePosY) {
+  int coordX = (mousePosX-25)/25;
+  int coordY = (mousePosY-25)/25;
+  int verrouPossible = 0;
   if ((25 > mouseY || mouseY > 25+25*arraySize || 25 > mouseX || mouseX > 25+25*arraySize)) {
     textSize(18);
     fill(0);
     text("Faut apprendre à viser!", 25, 25*(arraySize+2));
   } else {
-    int coordX = (mousePosX-25)/25;
-    int coordY = (mousePosY-25)/25;
-    if (isAMine(coordX, coordY)) {
-      fill(colorLoss);
-      stroke(240, 130, 103);
+    if ((board[coordX][coordY] == 0 || board[coordX][coordY] == 99) && verrouPossible<=wishedMines) {
+      verrouPossible++;
+      board[coordX][coordY] += 50;
+      fill(colorOdd);
       rect(float(((mousePosX-25)/25)*25)+25, float(((mousePosY-25)/25)*25)+25, 25, 25);
-      textSize(22);
-      fill(240, 130, 103);
-      text("X", ((mousePosX/25)*25)+7, ((mousePosY/25)*25)+20);
       fill(0);
-      text("BOOM", 25, 25*(arraySize+2));
+      textSize(22);
+      text("L", ((mousePosX/25)*25)+7, ((mousePosY/25)*25)+20);
     } else {
-      greenSafeCase(mousePosX, mousePosY);
-      getNoMine(coordX, coordY);
+      verrouPossible--;
+      board[coordX][coordY] -= 50;
+      fill(colorEven);
+      rect(float(((mousePosX-25)/25)*25)+25, float(((mousePosY-25)/25)*25)+25, 25, 25);
     }
   }
 }
+//gestion clic gauche
+void leftClick(int mousePosX, int mousePosY) {
+    if ((25 > mouseY || mouseY > 25+25*arraySize || 25 > mouseX || mouseX > 25+25*arraySize)) {
+      textSize(18);
+      fill(0);
+      text("Faut apprendre à viser!", 25, 25*(arraySize+2));
+    } else {
+      int coordX = (mousePosX-25)/25;
+      int coordY = (mousePosY-25)/25;
+      if (isAMine(coordX, coordY)) {
+        fill(colorLoss);
+        stroke(240, 130, 103);
+        rect(float(((mousePosX-25)/25)*25)+25, float(((mousePosY-25)/25)*25)+25, 25, 25);
+        textSize(22);
+        fill(240, 130, 103);
+        text("X", ((mousePosX/25)*25)+7, ((mousePosY/25)*25)+20);
+        fill(0);
+        text("BOOM", 25, 25*(arraySize+2));
+        exit();
+      } else if (board[coordX][coordY] <= 1) {
+        if (board[coordX][coordY] == 0) {
+          safeCase++;
+        }
+        board[coordX][coordY]++;
+        greenSafeCase(mousePosX, mousePosY);
+        getNoMine(coordX, coordY);
+      }
+    }
+}  
 
 void greenSafeCase(int mousePosX, int mousePosY) {
   fill(colorSafeClick);
