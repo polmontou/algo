@@ -236,7 +236,6 @@ void testPosition(int x) {
       modif = false;
     } else if (playerPos[x] == 52) {
       casePrison(x);
-      prison = true;
       modif = false;
     } else if (playerPos[x] == 63) {
       textSize(20);
