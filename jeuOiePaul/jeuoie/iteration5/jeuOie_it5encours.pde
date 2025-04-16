@@ -1,6 +1,7 @@
 void draw() {
+  playerNumber = 1;
   dessinPlateau();
-  positionBlanc();
+  playerTurn();
   noLoop();
 }
 
@@ -17,6 +18,9 @@ int position = 0;
 int manche = 0;
 int lancerDeTour;
 String joueurEnCours;
+int playerNumber;
+color[] playerColor;
+int[] playerPos;
 
 
 //dessine case sur interface graphique
@@ -56,7 +60,7 @@ void dessinPlateau() {
   }
   //légende cases spé
   fill(0);
-  text(" Légende des cases:",3,370);
+  text(" Légende des cases:", 3, 370);
   //carré vert : labyrinthe
   fill (#129000);
   rect(7, 375, 15, 15);
@@ -78,7 +82,27 @@ void dessinPlateau() {
   fill(0);
   text("= Hotel", 320, 387);
 }
-
+//gestion des tours de joueurs
+void playerTurn() {
+  if (manche == 0) {
+    //initialisation des couleurs de chaque
+    for (int x = 0; x < playerNumber; x++) {
+      playerColor = append(playerColor, color(random(256), random(256), random(256)));
+      playerPos = new int[playerNumber];
+    }
+    manche++;
+    for (int x = 0; x < playerNumber; x++) {
+      int deplacement = deplacement();
+      fill(255);
+      ellipse(coordCase[deplacement-1], coordCaseY, 8, 8);
+      fill(0);
+      textSize(20);
+      text("Position de ", 25, 100);
+      fill(playerColor[x]);
+      ellipse(70, 100+30*x, 20, 20);
+    }
+  }
+}
 //position du premier pion selon sa position + attribution victoire si position == 63
 void positionBlanc() {
   joueurEnCours = "BLANC";
@@ -86,9 +110,9 @@ void positionBlanc() {
   int deplacement = deplacement();
   fill(255);
   ellipse(coordCase[deplacement-1], coordCaseY, 8, 8);
-    fill(0);
-    textSize(20);
-    text("Position de Blanc : "+deplacement, 25, 100);
+  fill(0);
+  textSize(20);
+  text("Position de Blanc : "+deplacement, 25, 100);
 }
 
 //définit jusqu'à quelle position se déplacer selon un lancer de 2 dés aléatoire
@@ -101,7 +125,7 @@ int deplacement() {
   return position;
 }
 
-//lancer de 2 dés 
+//lancer de 2 dés
 int lancerDe() {
   int de1 = int(random(1, 7));
   int de2 = int(random(1, 7));
@@ -110,16 +134,16 @@ int lancerDe() {
   if (manche == 1) {
     if ((de1 == 6 || de1 == 3) && (de2 == 6 || de2 == 3) && total == 9) {
       total = 26;
-    textSize(20);
-    text("Tu fais de 9 avec un 6 et un 3, go en case 26!", 200, 200);
+      textSize(20);
+      text("Tu fais de 9 avec un 6 et un 3, go en case 26!", 200, 200);
     } else if ((de1 == 4 || de1 == 5) && (de2 == 4 || de2 == 5) && total == 9) {
       total = 53;
-    textSize(20);
-    text("Tu fais de 9 avec un 4 et un 5, go en case 53!", 200, 200); 
+      textSize(20);
+      text("Tu fais de 9 avec un 4 et un 5, go en case 53!", 200, 200);
     } else if (total == 6) {
       total = 12;
-    textSize(20);
-    text("Tu fais un 6, go en case 12!", 200, 200); 
+      textSize(20);
+      text("Tu fais un 6, go en case 12!", 200, 200);
     }
   }
   return total;
@@ -139,7 +163,6 @@ int testPosition() {
     } else if (position == 58) {
       caseTeteDeMort();
     } else if (position == 19) {
-    
     } else if (position == 63) {
       textSize(20);
       text("VICTOIRE de + "+joueurEnCours, 200, 200);
