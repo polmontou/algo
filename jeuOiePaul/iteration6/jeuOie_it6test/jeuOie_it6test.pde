@@ -2,9 +2,8 @@ void draw() {
   initialisation();
   dessinPlateau();
   uneBouclePlayerTurn();
-  if (prison) {
-    noLoop();
-  }
+  noLoop();
+  
 }
 
 void setup() {
@@ -28,7 +27,7 @@ boolean[] stuckPuit;
 boolean[] stuckPrison;
 boolean initialisation = false;
 int compteurBoucle = 0;
-boolean prison = false;
+
 
 //dessine case sur interface graphique
 void dessinPlateau() {
