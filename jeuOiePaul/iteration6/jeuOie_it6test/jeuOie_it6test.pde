@@ -4,7 +4,6 @@ void draw() {
   dessinPlateau();
   uneBouclePlayerTurn();
   //noLoop();
-
 }
 
 void setup() {
@@ -21,8 +20,11 @@ int position = 0;
 int manche = 0;
 int lancerDeTour;
 int joueurEnCours;
+int[] turnHotelPlayer;
 color[] playerColor;
 int[] playerPos;
+boolean[] stuckPuit;
+boolean[] stuckPrison;
 boolean initialisation = false;
 int compteurBoucle = 0;
 
@@ -34,7 +36,7 @@ void dessinPlateau() {
     fill(#9EAA02);
     rect(25+16*x, 25, 16, 20);
     fill(#446e4f);
-    rect(25+16*x,45, 16, 10+11*playerNumber);
+    rect(25+16*x, 45, 16, 10+11*playerNumber);
     //case laby (vert)
     if (x==42) {
       fill (#129000);
@@ -53,6 +55,16 @@ void dessinPlateau() {
     //case hotel (rose)
     if (x == 19) {
       fill (#FF0D9F);
+      rect(25+16*x, 45, 16, 10+11*playerNumber);
+    }
+    //case puit (noir)
+    if (x == 3) {
+      fill(#121212);
+      rect(25+16*x, 45, 16, 10+11*playerNumber);
+    }
+    //case prison (jaune)
+    if (x == 52) {
+      fill(#e37922);
       rect(25+16*x, 45, 16, 10+11*playerNumber);
     }
     //numéro de case
@@ -87,14 +99,28 @@ void dessinPlateau() {
   rect(300, 375, 15, 15);
   fill(0);
   text("= Hotel", 320, 387);
+  //carré noir : puit
+  fill (#121212);
+  rect(370, 375, 15, 15);
+  fill(0);
+  text("= Puit", 390, 387);
+  //carré jaune : prison
+  fill (#e37922);
+  rect(430, 375, 15, 15);
+  fill(0);
+  text("= Prison", 450, 387);
 }
 
 
 void initialisation() {
   if (!initialisation) {
-    // création tableaux qui contiennent la position et la couleur de chaque joueur
+    // création tableaux qui contiennent la position, la couleur de chaque joueur
+    // le nombre de tour bloqués à l'hotel, s'ils sont bloqués dans le puit
     playerPos = new int[playerNumber];
     playerColor = new color[playerNumber];
+    turnHotelPlayer= new int[playerNumber];
+    stuckPuit = new boolean[playerNumber];
+    stuckPrison = new boolean[playerNumber];
     //initialisation des couleurs de chaque
     for (int x = 0; x < playerNumber; x++) {
       playerColor[x]= color(random(256), random(256), random(256));
@@ -118,7 +144,11 @@ void uneBouclePlayerTurn() {
 //gestion des tours de joueurs
 void playerTurn(int x) {
   joueurEnCours = x;
-  deplacement(x);
+  if (turnHotelPlayer[x] == 0 && !stuckPuit[x] && !stuckPrison[x]) {
+    deplacement(x);
+  } else {
+    turnHotelPlayer[x]--;
+  }
   fill(playerColor[x]);
   ellipse(coordCase[playerPos[x]], coordCaseY+5+x*12, 8, 8);
   fill(0);
@@ -163,7 +193,7 @@ int lancerDe() {
   int de2 = int(random(1, 7));
   int total = de1+de2;
   textSize(20);
-   text("Tu fais " + de1 +" et " + de2 + " :", 200, 170);
+  text("Tu fais " + de1 +" et " + de2 + " :", 200, 170);
   //ajout règles spé premier tour
   if (manche == 1) {
     if ((de1 == 6 || de1 == 3) && (de2 == 6 || de2 == 3) && total == 9) {
@@ -196,6 +226,15 @@ void testPosition(int x) {
       caseLabyrinthe(x);
     } else if (playerPos[x] == 58) {
       caseTeteDeMort(x);
+    } else if (playerPos[x] == 19) {
+      caseHotel(x);
+      modif = false;
+    } else if (playerPos[x] == 3) {
+      casePuit(x);
+      modif = false;
+    } else if (playerPos[x] == 52) {
+      casePrison(x);
+      modif = false;
     } else if (playerPos[x] == 63) {
       textSize(20);
       text("VICTOIRE de ", 300, 260);
@@ -234,10 +273,47 @@ void caseLabyrinthe(int x) {
   text("Case Labyrinthe: tu te perds et tu retournes en case 30!", 200, 230);
 }
 
+//case spé TETE DE MORT : case 58
 void caseTeteDeMort(int x) {
   playerPos[x] = 0;
   textSize(20);
   text("Case Tête de Mort : retour au début", 200, 230);
+}
+
+//case spé HOTEL : case 19
+void caseHotel(int x) {
+  turnHotelPlayer[x] = 2;
+}
+
+//case spé PUIT : case 3
+void casePuit(int x) {
+  stuckPuit[x] = !stuckPuit[x];
+  for (int y = 0; y < playerNumber; y++) {
+    if (y != x && stuckPuit[y]) {
+      stuckPuit[y] = !stuckPuit[y];
+    }
+  }
+}
+
+//case spé PRISON : case 52
+void casePrison(int x) {
+  boolean someoneIn = false;
+  //vérifie si quelqu'un était en prison, si c'est le cas, il est libéré
+  //et renvoie l'info comme quoi quelqu'un y était
+  for (int y = 0; y < playerNumber; y++) {
+    if (stuckPrison[y]) {
+      stuckPrison[y] = !stuckPrison[y];
+      someoneIn = true;
+      println("personne libérée");
+      noLoop();
+      //si je n'ai libéré personne, alors je vais en prison
+      if (!someoneIn) {
+        println("personne de libéré, t'es québlo");
+        stuckPrison[x] = !stuckPrison[x];
+        noLoop();
+      }
+    }
+  }
 }
 
 void mouseClicked() {
