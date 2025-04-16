@@ -1,9 +1,10 @@
 void draw() {
   initialisation();
-  println(manche);
   dessinPlateau();
   uneBouclePlayerTurn();
-  //noLoop();
+  if (prison) {
+    noLoop();
+  }
 }
 
 void setup() {
@@ -27,7 +28,7 @@ boolean[] stuckPuit;
 boolean[] stuckPrison;
 boolean initialisation = false;
 int compteurBoucle = 0;
-
+boolean prison = false;
 
 //dessine case sur interface graphique
 void dessinPlateau() {
@@ -147,7 +148,9 @@ void playerTurn(int x) {
   if (turnHotelPlayer[x] == 0 && !stuckPuit[x] && !stuckPrison[x]) {
     deplacement(x);
   } else {
-    turnHotelPlayer[x]--;
+    if (turnHotelPlayer[x]>0){
+      turnHotelPlayer[x]--;
+    }
   }
   fill(playerColor[x]);
   ellipse(coordCase[playerPos[x]], coordCaseY+5+x*12, 8, 8);
@@ -234,6 +237,7 @@ void testPosition(int x) {
       modif = false;
     } else if (playerPos[x] == 52) {
       casePrison(x);
+      prison = true;
       modif = false;
     } else if (playerPos[x] == 63) {
       textSize(20);
@@ -302,17 +306,16 @@ void casePrison(int x) {
   //et renvoie l'info comme quoi quelqu'un y était
   for (int y = 0; y < playerNumber; y++) {
     if (stuckPrison[y]) {
-      stuckPrison[y] = !stuckPrison[y];
+      stuckPrison[y] = false;
       someoneIn = true;
-      println("personne libérée");
-      noLoop();
-      //si je n'ai libéré personne, alors je vais en prison
-      if (!someoneIn) {
-        println("personne de libéré, t'es québlo");
-        stuckPrison[x] = !stuckPrison[x];
-        noLoop();
-      }
+      println("joueur "+ (x+1) + " état prison : "+stuckPrison[y]);
+      println("personne libérée : joueur"+(y+1));
     }
+  }  
+  //si je n'ai libéré personne, alors je vais en prison
+  if (!someoneIn) {
+    println("personne de libéré, t'es québlo");
+    stuckPrison[x] = !stuckPrison[x];
   }
 }
 
