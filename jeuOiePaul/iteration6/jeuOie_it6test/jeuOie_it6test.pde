@@ -13,6 +13,7 @@ void setup() {
 
 
 //définition variable
+int posPrecedente;
 int playerNumber = 3;
 int[] coordCase;
 int coordCaseY = 50;
@@ -145,7 +146,20 @@ void uneBouclePlayerTurn() {
 void playerTurn(int x) {
   joueurEnCours = x;
   if (turnHotelPlayer[x] == 0 && !stuckPuit[x] && !stuckPrison[x]) {
+    posPrecedente = playerPos[x];
     deplacement(x);
+    for (int y = 0; y < playerNumber; y++) {
+      if (x != y && playerPos[x] == playerPos[y] && playerPos[y] != 52 && playerPos[y] != 3 && playerPos[y] != 19){
+       playerPos[y] = posPrecedente;
+       textSize(20);
+       text("Le joueur       atterit sur la case du joueur      , ce dernier va en position "+posPrecedente+".", 200, 230);
+       fill(playerColor[x]);
+       ellipse(292, 223, 10, 10);
+       fill(playerColor[y]);
+       ellipse(545, 223, 10, 10);
+       noLoop();       
+      }
+    }
   } else {
     if (turnHotelPlayer[x]>0){
       turnHotelPlayer[x]--;
@@ -191,8 +205,8 @@ int deplacement(int x) {
 
 //lancer de 2 dés
 int lancerDe() {
-  int de1 = int(random(1, 7));
-  int de2 = int(random(1, 7));
+  int de1 = 6;//int(random(1, 7));
+  int de2 = 5;//int(random(1, 7));
   int total = de1+de2;
   textSize(20);
   text("Tu fais " + de1 +" et " + de2 + " :", 200, 170);
