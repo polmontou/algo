@@ -205,8 +205,8 @@ int deplacement(int x) {
 
 //lancer de 2 dés
 int lancerDe() {
-  int de1 = 6;//int(random(1, 7));
-  int de2 = 5;//int(random(1, 7));
+  int de1 = int(random(1, 7));
+  int de2 = int(random(1, 7));
   int total = de1+de2;
   textSize(20);
   text("Tu fais " + de1 +" et " + de2 + " :", 200, 170);
@@ -233,7 +233,6 @@ int lancerDe() {
 void testPosition(int x) {
   boolean modif = true;
   while (modif) {
-    println("le joueur "+ (x+1)+ " est en "+playerPos[x]);
     if (playerPos[x]>63) {
       playerPos[x] = 63 - (playerPos[x]-63);
     } else if (playerPos[x] == 9 || playerPos[x] == 18 || playerPos[x] == 27 || playerPos[x] == 36 || playerPos[x] == 45 || playerPos[x] == 54) {
